@@ -17,7 +17,7 @@ file = "/home/aline/Documents/Dados/NCEP_NCAR/hgt.mon.mean.nc"
 # reading data and selecting level, time and latitude (HN)
 f = xr.open_dataset(file)
 f = f.sel(level=1000, time=slice("1979-01-01","2000-12-01"),
-            lat=slice(90,0))
+            lat=slice(90,20))
 
 # removing seasonality
 data_detrend = scipy.signal.detrend(f.hgt, axis=0)
@@ -46,6 +46,7 @@ for t in range(len(f_detrend.time)):
 # scaling values to avoid overrepresented areas
 new = []
 for l in f_detrend.lat.values:
+    # confirmar por qual valor multiplica em cada latitude
     x = f_detrend.sel(lat=l) * np.sqrt(abs(np.cos(l)))
     new.append(x)
 combined = xr.concat(new, dim=f_detrend.lat)
