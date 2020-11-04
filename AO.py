@@ -4,6 +4,7 @@
 Author: Aline Lemos de Freitas
 15 de setembro de 2020
 
+4 de novembro
 
 Reading NAO index
 """
