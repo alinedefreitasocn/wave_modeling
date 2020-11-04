@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sn
 import matplotlib.dates as mdates
 
-file = '/home/aline/Documents/IST_investigation/Teleconnections/AO_index.txt'
+file = '/home/aline/Documents/Dados/NCEP_NCAR/ao_index_CPC.txt'
 
 f = pd.read_csv(file, sep='\s+',
                 names=['year', 'month', 'id'],
