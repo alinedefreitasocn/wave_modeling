@@ -9,95 +9,97 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 from eofs.xarray import Eof
+from calculaEOF import calcEOF
+from reading_AO_index import read_index
 
-
+"""
+“The NCEP/NCAR reanalysis dataset was employed at a horizontal resolution of (lat,lon)=(2.5°X2.5°) for the period 1979 to 2000. The loading pattern of AO is defined as the first leading mode from the EOF analysis of monthly mean height anomalies at 1000-hPa (NH). Note that year-round monthly mean anomaly data has been used to obtain the loading patterns. Since the AO have the largest variability during the cold sesaon (variance of AO), the loading patterns primarily capture characteristics of the cold season patterns.” - NOAA
+"""
 file = "/home/aline/Documents/Dados/NCEP_NCAR/hgt.mon.mean.nc"
 
 # reading data and selecting level, time and latitude (HN)
 f = xr.open_dataset(file)
-f = f.sel(level=1000, time=slice("1979-01-01","2000-12-31"),
-            lat=slice(90,20))
 
+"""
+“To identify the leading teleconnection patterns in the atmospheric circulation, Emperical Orthogonal Function (EOF) was applied to the monthly mean 1000-hPa height anomalies poleward of 20° latitude for the Northern Hemisphere.” - NOAA
+"""
+completo = f.sel(level=1000,lat=slice(90,20))
+# Just remove the mean from the complete time series to use
+# in the end
+completo = completo - completo.hgt.mean(dim='time')
+
+timeslice = completo.sel(time=slice("1979-01-01",
+                                    "2000-12-31"))
 # removing seasonality
 # making month means from the whole time series
-mmean = f.hgt.groupby('time.month').mean()
-m_anomalie = f.groupby('time.month') - mmean
-# selecionando so os meses de inverno
-winter = m_anomalie.sel(time=m_anomalie['time.season']=='DJF')
+# mmean = f.hgt.groupby('time.month').mean()
+"""“The seasonal cycle has been removed from the monthly mean height field.” """
+m_anomalie = (timeslice.groupby('time.month') -
+            timeslice.hgt.groupby('time.month').mean())
 
-
-# fazendo uma media por season
-smean = f.hgt.groupby('time.season').mean()
-s_anomalie = f.groupby('time.season') - smean
-
-
-
-
-limite = max(abs(m_anomalie.hgt.max()), abs(m_anomalie.hgt.min()))
-
-for t in range(len(m_anomalie.time)):
-    ax1 = plt.subplot(projection=ccrs.Orthographic(0, 90))
-    m_anomalie.isel(time=t).hgt.plot(transform=ccrs.PlateCarree(),
-                            subplot_kws={"projection": ccrs.Orthographic(0, 90)},
-                            cmap='RdBu_r',
-                            vmax=limite,
-                            vmin=-limite)
-    ax1.coastlines(zorder=3)
-    plt.title('1000 hPa Geopotential Height: ' +
-                str(m_anomalie.isel(time=t).time.values)[:7])
-    plt.savefig('/home/aline/Dropbox/IST_investigation/Teleconnections/AOIndex/figures/altura_anomalie_mensal' + str(m_anomalie.isel(time=t).time.values)[:7])
-    plt.close()
+completo = (completo.groupby('time.month') -
+            completo.hgt.groupby('time.month').mean())
 
 """
 #########################################################
 # Using EOF tutorial from
 # https://ajdawson.github.io/eofs/latest/examples/nao_xarray.html
+Criei uma funcao chamada calcEOF para isso
 #
 # Begining
 """
-# Create an EOF solver to do the EOF analysis.
-# Square-root of cosine of
-# latitude weights are applied before the computation of EOFs.
-# scaling values to avoid overrepresented areas
-# np.clip: Given an interval, values outside the interval are clipped to
-# the interval edges. For example, if an interval of [0, 1] is specified,
-# values smaller than 0 become 0, and values larger than 1 become 1.
-# coslat = np.cos(np.deg2rad(m_anomalie.coords['lat'].values)).clip(0., 1.)
-# coslat = np.cos(np.deg2rad(winter.coords['lat'].values)).clip(0., 1.)
-coslat = np.cos(np.deg2rad(s_anomalie.coords['lat'].values)).clip(0., 1.)
-# np.newaxis add a dimention to wgts. dont know what ... does
-# i think its like a transposed. It took all the objects on a list and
-# make a new list with lists inside (each list with only one object)
-# just an adjustment of format
-wgts = np.sqrt(coslat)[..., np.newaxis]
-# The EOF analysis is handled by a solver class, and the EOF solution
-# is computed when the solver class is created. Method calls are then used
-# to retrieve the quantities of interest from the solver class.
-# center = False do not remove mean from data
-# solver = Eof(m_anomalie.hgt, weights=wgts, center=False)
-# solver = Eof(winter.hgt, weights=wgts, center=False)
-solver = Eof(s_anomalie.hgt, weights=wgts, center=False)
-# Retrieve the leading EOF, expressed as the covariance between the leading PC
-# time series and the input SLP anomalies at each grid point.
-eof1 = solver.eofsAsCovariance(neofs=1)
-var1 = solver.varianceFraction().sel(mode=0)
 
+solver, eof1, var1 = calcEOF(m_anomalie, 'hgt')
+
+eof1_norm = (eof1.sel(mode=0) * (-1))/eof1.sel(mode=0).std()
+"""Daily and monthly AO indices are constructed by projecting the daily and monthly mean 1000-hPa  height anomalies onto the leading EOF mode. Both time series are normalized by the standard deviation of the monthly index (1979-2000 base period” - NOAA """
+pseudo_pcs = ((solver.projectField(completo.hgt) * (-1))/
+                solver.pcs(npcs=1).std())
+eof1 = eof1 * (-1)
 # Plot the leading EOF expressed as covariance in the European/Atlantic domain.
-clevs = np.linspace(-75, 75, 11)
+clevs = np.linspace(-50, 50, 12)
 proj = ccrs.Orthographic(0, 90)
 # ax = plt.axes(projection=proj)
 plt.figure()
 ax = plt.subplot(projection=ccrs.Orthographic(0, 90))
 ax.coastlines()
 ax.set_global()
-eof1.sel(mode=0).plot.contourf(levels=clevs, cmap=plt.cm.RdBu_r,
+eof1.sel(mode=0).plot.pcolormesh(levels=clevs,
+                            cmap=plt.cm.RdBu_r,
                          transform=ccrs.PlateCarree(), add_colorbar=True
                          )
+ax.set_colorbar(extend='both')
 ax.set_title('EOF1 expressed as covariance ' + str(round(var1.values*100, 2)) + '%', fontsize=16)
-plt.show()
+plt.show(block=False)
 
 """
 ######################################################
 # END
 #######################################################
 """
+# pcs = solver.pcs(npcs=1)
+# pseudo_pcs = solver.projectField(m_anomalie.hgt, eofscaling=1)
+# pseudo_pcs = pseudo_pcs/m_anomalie.hgt.std(axis=0)
+read_index()
+pseudo_pcs.sel(mode=0).plot(linewidth=1,
+                            linestyle='--',
+                            color='k',
+                            label='Calculated Index')
+plt.legend()
+plt.xlim(['01-01-1989', '01-01-2020'])
+plt.ylabel('AO Index')
+plt.draw()
+
+# testing the diferrence between pcs and pseudo_pcs
+pcs = solver.pcs(npcs=1)
+pseudo_pcs = solver.projectField(m_anomalie.hgt)
+
+plt.figure()
+pcs.plot(color='DarkRed',
+        label='pcs',
+        linestyle='--')
+pseudo_pcs.sel(mode=0).plot(linestyle='-.',
+                            color='DarkBlue',
+                            label='pseudo pcs')
+plt.legend()
+plt.show(block=False)

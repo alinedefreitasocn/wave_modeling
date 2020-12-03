@@ -22,7 +22,11 @@ def calcEOF(xrdata, data_var):
     input:
         xrdata: xarray Dataset
         data_var: string. Variable name to use on EOF.
+
+        use as:
+            solver, eof1, var1 = calcEOF(xrdata, 'data_var')
     """
+    """“To ensure equal area weighting for the covariance matrix, the gridded data is weighted by the square root of the cosine of latitude.” - NOAA """
     coslat = np.cos(np.deg2rad(xrdata.coords['lat'].values)).clip(0., 1.)
     # np.newaxis add a dimention to wgts. dont know what ... does
     # i think its like a transposed. It took all the objects on a list and
@@ -34,12 +38,21 @@ def calcEOF(xrdata, data_var):
     # to retrieve the quantities of interest from the solver class.
     # center = False do not remove mean from data
     # solver = Eof(m_anomalie.hgt, weights=wgts, center=False)
+    """
+    # solver.eofAsCovariance Returns the EOFs expressed as the covariance between each PC and the input
 
-    solver = Eof(xrdata[data_var], weights=wgts, center=False)
+    # data set at each point in space. they are not actually the EOFs. They tell you how each point in space
+
+    # varies like the given mode. The eofs method provides the raw EOFs (eigenvectors of the covariance
+
+    # matrix) which are the spatial patterns the PCs are the coefficeints of.
+
+    “The covariance matrix is used for the EOF analysis.” - NOAA """
+    solver = Eof(xrdata[data_var], weights=wgts, center=True, pcscaling=0)
     # solver = Eof(s_anomalie.hgt, weights=wgts, center=False)
     # Retrieve the leading EOF, expressed as the covariance between the leading PC
     # time series and the input SLP anomalies at each grid point.
-    eof1 = solver.eofsAsCovariance()
+    eof1 = solver.eofsAsCovariance(pcscaling=1)
     var1 = solver.varianceFraction().sel(mode=0)
 
     return solver, eof1, var1
