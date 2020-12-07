@@ -49,7 +49,7 @@ Criei uma funcao chamada calcEOF para isso
 # Begining
 """
 
-solver, eof1, var1 = calcEOF(m_anomalie, 'hgt')
+solver, eof1, var1 = calcEOF(m_anomalie, 'hgt', 'lat')
 
 eof1_norm = (eof1.sel(mode=0) * (-1))/eof1.sel(mode=0).std()
 """Daily and monthly AO indices are constructed by projecting the daily and monthly mean 1000-hPa  height anomalies onto the leading EOF mode. Both time series are normalized by the standard deviation of the monthly index (1979-2000 base period” - NOAA """
@@ -68,7 +68,7 @@ eof1.sel(mode=0).plot.pcolormesh(levels=clevs,
                             cmap=plt.cm.RdBu_r,
                          transform=ccrs.PlateCarree(), add_colorbar=True
                          )
-ax.set_colorbar(extend='both')
+
 ax.set_title('EOF1 expressed as covariance ' + str(round(var1.values*100, 2)) + '%', fontsize=16)
 plt.show(block=False)
 
@@ -83,8 +83,8 @@ plt.show(block=False)
 read_index()
 pseudo_pcs.sel(mode=0).plot(linewidth=1,
                             linestyle='--',
-                            color='k',
-                            label='Calculated Index')
+                            color='DarkRed',
+                            label='Calculated Index - NCEP')
 plt.legend()
 plt.xlim(['01-01-1989', '01-01-2020'])
 plt.ylabel('AO Index')
