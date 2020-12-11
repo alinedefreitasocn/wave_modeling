@@ -103,8 +103,8 @@ elif data = 'monthly_mean':
                     ],
                     'time': '00:00',
                     'area': [
-                            90, -100, 0,
-                            20,
+                            90, -180, 0,
+                            180,
                     ],
                 },
                 '/home/aline/Documents/ERA5/montly_mean' + y + '_'+ m + '.nc')
@@ -124,7 +124,8 @@ elif data = 'monthly_mean':
                     'variable': [
                         # '10m_wind_speed', 'instantaneous_10m_wind_gust',
                         'mean_wave_direction',
-                        'mean_wave_period', 'significant_height_of_combined_wind_waves_and_swell',
+                        'mean_wave_period',
+                        'significant_height_of_combined_wind_waves_and_swell',
                     ],
                     'year': ['1989', '1990', '1991', '1992',
                                 '1993', '1994', '1995',
@@ -144,8 +145,8 @@ elif data = 'monthly_mean':
                     ],
                     'time': '00:00',
                     'area': [
-                            90, -100, 0,
-                            20,
+                            90, -180, 0,
+                            180,
                     ],
                 },
-                '/home/aline/Documents/ERA5/montly_mean_1990_2020.grib')
+                '/home/aline/Documents/Dados/ERA5/montly_mean_1990_2020.grib')

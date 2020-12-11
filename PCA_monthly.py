@@ -52,9 +52,15 @@ Criei uma funcao chamada calcEOF para isso
 solver, eof1, var1 = calcEOF(m_anomalie, 'hgt', 'lat')
 
 eof1_norm = (eof1.sel(mode=0) * (-1))/eof1.sel(mode=0).std()
-"""Daily and monthly AO indices are constructed by projecting the daily and monthly mean 1000-hPa  height anomalies onto the leading EOF mode. Both time series are normalized by the standard deviation of the monthly index (1979-2000 base period” - NOAA """
+"""Daily and monthly AO indices are constructed by projecting the daily and
+monthly mean 1000-hPa  height anomalies onto the leading EOF mode.
+Both time series are normalized by the standard deviation of the monthly
+index (1979-2000 base period” - NOAA """
 pseudo_pcs = ((solver.projectField(completo.hgt) * (-1))/
                 solver.pcs(npcs=1).std())
+
+pseudo_pcs.sel(mode=0).to_netcdf('/home/aline/Documents/Dados/ERA5/index_era5.nc')
+
 eof1 = eof1 * (-1)
 # Plot the leading EOF expressed as covariance in the European/Atlantic domain.
 clevs = np.linspace(-50, 50, 12)
@@ -93,6 +99,8 @@ plt.draw()
 # testing the diferrence between pcs and pseudo_pcs
 pcs = solver.pcs(npcs=1)
 pseudo_pcs = solver.projectField(m_anomalie.hgt)
+
+
 
 plt.figure()
 pcs.plot(color='DarkRed',
