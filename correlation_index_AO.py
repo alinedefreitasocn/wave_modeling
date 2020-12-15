@@ -11,12 +11,13 @@ from faz_figuras import *
 
 
 findex = '/home/aline/Documents/Dados/ERA5/index_era5.nc'
-fwave = '/home/aline/Documents/Dados/ERA5/montly_mean_1990_2020.grib'
+fwave = '/home/aline/Documents/Dados/ERA5/montly_mean_1979_2019.grib'
 
 dwave = cfgrib.open_datasets(fwave)[0]
-index = xr.open_dataset(findex)
+indices = xr.open_dataset(findex)
 
-index=index['__xarray_dataarray_variable__'].rename('indices')
+# seleciona o periodo disponivel do era5
+indices=indices['__xarray_dataarray_variable__'].rename('indices')
 index_crop = index.sel(time=slice(dwave.isel(time=0).time.values,
                                 dwave.isel(time=-1).time.values))
 # Compute the Pearson correlation coefficient between
@@ -31,10 +32,10 @@ limites = [-104, 40, 20, 85]
 #clevs = np.linspace(-1, 1, 10)
 clevs = np.arange(-1, 1.2, 0.2)
 colormap = plt.cm.Spectral
-proj = ccrs.LambertConformal(central_longitude=-40,
-                             central_latitude=50,
-                             standard_parallels=(20,30))
-#proj= ccrs.Orthographic(0, 90)
+#proj = ccrs.LambertConformal(central_longitude=-40,
+#                             central_latitude=50,
+#                             standard_parallels=(20,30))
+proj= ccrs.Orthographic(0, 90)
 
 
 for k in correlacao.keys():
@@ -65,8 +66,8 @@ correlacao_winter = {'Hs': xr.corr(dwave_winter.swh,
 
 for k in correlacao_winter.keys():
     fig, ax = faz_mapa_corr(proj,
-                            clevs,
-                            coords_lim = limites)
+                            clevs)#,
+                            #coords_lim = limites)
     correlacao_winter[k].plot.contourf(levels=clevs,
                                 cmap=colormap,
                                 transform=ccrs.PlateCarree(),
@@ -76,7 +77,7 @@ for k in correlacao_winter.keys():
     plt.title(k + '/AO correlation - Winter (DJF)')
     plt.show(block=False)
     fig.savefig('/home/aline/Dropbox/IST_investigation/Teleconnections' +
-                '/correlacoes/'+ k + '_ao_NA_winter_DJF.png')
+                '/correlacoes/'+ k + '_ao_NA_winter_DJF_proj_polar.png')
     plt.close()
 
 

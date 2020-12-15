@@ -1,7 +1,8 @@
 import matplotlib
 import matplotlib.pyplot as plt
 
-font = {'family' : 'normal',
+
+font = {
         'weight' : 'normal',
         'size'   : 22}
 
@@ -9,6 +10,7 @@ matplotlib.rc('font', **font)
 
 
 def faz_mapa_corr(proj, levels, coords_lim=None):
+
     matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
 
     fig, ax = plt.subplots(figsize=(20, 15),
