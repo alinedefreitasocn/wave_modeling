@@ -18,7 +18,7 @@ indices = xr.open_dataset(findex)
 
 # seleciona o periodo disponivel do era5
 indices=indices['__xarray_dataarray_variable__'].rename('indices')
-index_crop = index.sel(time=slice(dwave.isel(time=0).time.values,
+index_crop = indices.sel(time=slice(dwave.isel(time=0).time.values,
                                 dwave.isel(time=-1).time.values))
 # Compute the Pearson correlation coefficient between
 # two DataArray objects along a shared dimension
