@@ -6,14 +6,14 @@ Author: Aline Lemos de Freitas
 
 4 de novembro
 
-Reading NAO index
+Reading AO index
 """
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sn
 import matplotlib.dates as mdates
 
-file = '/home/aline/Documents/IST_investigation/Teleconnections/AO_index.txt'
+file = '/home/aline/Dropbox/IST_investigation/Teleconnections/AO_index.txt'
 
 f = pd.read_csv(file, sep='\s+',
                 names=['year', 'month', 'id'],

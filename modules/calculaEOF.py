@@ -22,12 +22,43 @@ def calcEOF(xrdata, data_var, w, wei=True):
     input:
         xrdata: xarray Dataset
         data_var: string. Variable name to use on EOF.
-        w: string. variable for using weights
+        w: string. variable for using weights. E.g. latitude
 
         use as:
             solver, eof1, var1 = calcEOF(xrdata, 'data_var')
     """
-    """“To ensure equal area weighting for the covariance matrix, the gridded data is weighted by the square root of the cosine of latitude.” - NOAA """
+    xrdata = xrdata - xrdata[data_var].mean(dim="time")
+
+    # Testing if we can select data from level, lat and time
+    try:
+        xrdata = xrdata.sel(level=1000,
+                            latitude=slice(90,20),
+                            time=slice("1979-01-01", "2000-12-31"))
+        print('Data selection OK on first try')
+    except ValueError:
+        try:
+            print('valueError: Trying next')
+            xrdata = xrdata.sel(level=1000,
+                                lat=slice(90,20),
+                                time=slice("1979-01-01", "2000-12-31"))
+            print('Data selection OK on second try')
+        except ValueError:
+            try:
+                print('valueError: Trying next')
+                xrdata = xrdata.sel(
+                                    latitude=slice(90,20),
+                                    time=slice("1979-01-01", "2000-12-31"))
+                print('Data selection OK on third try')
+            except:
+                raise TypeError(' Data out of limits')
+
+
+    xrdata = (xrdata.groupby('time.month') -
+              xrdata.hgt.groupby('time.month').mean())
+    #  To ensure equal area weighting for the covariance matrix,
+    # the gridded data is weighted by the square root of the cosine of
+    # latitude. - NOAA
+
     if wei == True:
         coslat = np.cos(np.deg2rad(xrdata.coords[w].values)).clip(0., 1.)
         # np.newaxis add a dimention to wgts. dont know what ... does
