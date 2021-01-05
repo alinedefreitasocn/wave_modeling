@@ -14,12 +14,21 @@ findex = '/home/aline/Documents/Dados/ERA5/index_era5.nc'
 fwave = '/home/aline/Documents/Dados/ERA5/montly_mean_1979_2019.grib'
 
 dwave = cfgrib.open_datasets(fwave)[0]
-indices = xr.open_dataset(findex)
+# indices = xr.open_dataset(findex)
+indices = pd.read_csv(findex, 
+                  header=0,
+                  parse_dates=True,
+                  index_col='time',
+                  names=['time', 'indices'])
 
 # seleciona o periodo disponivel do era5
-indices=indices['__xarray_dataarray_variable__'].rename('indices')
-index_crop = indices.sel(time=slice(dwave.isel(time=0).time.values,
-                                dwave.isel(time=-1).time.values))
+# indices=indices['__xarray_dataarray_variable__'].rename('indices')
+# index_crop = indices.sel(time=slice(dwave.isel(time=0).time.values,
+#                                 dwave.isel(time=-1).time.values))
+index_crop = indices[slice(dwave.isel(time=0).time.values,
+                                dwave.isel(time=-1).time.values)]
+index_crop = index_crop.to_xarray()
+
 # Compute the Pearson correlation coefficient between
 # two DataArray objects along a shared dimension
 correlacao = {'Hs': xr.corr(dwave.swh, index_crop, dim='time'),

@@ -11,9 +11,6 @@ Author: Aline Lemos de Freitas
     - Read ERA5 file
     - Apply methodology
 
-
-
-
 """
 
 import pandas as pd
@@ -145,7 +142,7 @@ plt.draw()
 """ Calculando EOF e PCs usando ERA5"""
 # single file
 # reading grib file with 1000 hpa geopotential height
-dataDIR = '/home/aline/Documents/Dados/ERA5/geopotential_1979_2019.grib'
+dataDIR = '/home/aline/Documents/Dados/ERA5/geopotential_1979_2020.grib'
 
 DS = cfgrib.open_datasets(dataDIR)[0]
 DS = DS.assign(hgt = DS.z / 9.81)
