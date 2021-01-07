@@ -192,5 +192,8 @@ ppcs = pseudo_pcs.sel(mode=0).to_dataframe(name='hgt',
                                     dim_order=['time']).drop(columns=['mode',
                                                                     'valid_time',
                                                                     'month'])
+# salvando como netcdf para fazer a comparacao com campo de onda
+pseudo_pcs.sel(mode=0).to_netcdf('/home/aline/Documents/Dados/ERA5/index_era5.nc')
 
+# salvando em txt para comparar com o indice da noaa
 ppcs.to_csv('/home/aline/Documents/Dados/ERA5/index_era5.txt')

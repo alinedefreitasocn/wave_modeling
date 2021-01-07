@@ -36,7 +36,7 @@ c.retrieve(
                 '2008', '2009', '2010',
                 '2011', '2012', '2013',
                 '2014', '2015', '2016',
-                '2017', '2018', '2019',
+                '2017', '2018', '2019','2020'
     ],
     'month': ['01', '02', '03',
         '04', '05', '06',
@@ -49,4 +49,4 @@ c.retrieve(
             180,
     ],
 },
-'/home/aline/Documents/Dados/ERA5/montly_mean_1979_2019.grib')
+'/home/aline/Documents/Dados/ERA5/montly_mean_1979_2020.grib')

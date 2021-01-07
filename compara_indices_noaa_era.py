@@ -42,10 +42,9 @@ stats = {
          'mean': indices.mean(),
          'std': indices.std(),
          'pearson':indices.corr(method='pearson'),
-         'kendall':indices.corr(method='kendall'),
-         'spearman':indices.corr(method='spearman'),
          'RMSE': rmse(indices.iNOAA, indices.iERA),
-         'bias': indices.mean().diff() # diff between iERA - iNOAA
+         'bias': sum(indices.iNOAA - indices.iERA)/len(indices),
+         'variance': indices.var()
          }
 
 
