@@ -10,33 +10,76 @@ import numpy as np
 from faz_figuras import *
 
 
-findex = '/home/aline/Documents/Dados/ERA5/index_era5.nc'
-fwave = '/home/aline/Documents/Dados/ERA5/montly_mean_1979_2019.grib'
+tele = 'AO'
+finalpath = (r'/home/aline/Dropbox/IST_investigation'
+                           '/Teleconnections/correlacoes/' + tele + '/')
 
+# reading wave file
+fwave = '/home/aline/Documents/Dados/ERA5/montly_mean_1979_2020.grib'
 dwave = cfgrib.open_datasets(fwave)[0]
 
-indices = xr.open_dataset(findex)
-# indices = pd.read_csv(findex, 
-#                   header=0,
-#                   parse_dates=True,
-#                   index_col='time',
-#                   names=['time', 'indices'])
 
-# seleciona o periodo disponivel do era5
-indices=indices['__xarray_dataarray_variable__'].rename('indices')
-index_crop = indices.sel(time=slice(dwave.isel(time=0).time.values,
-                                dwave.isel(time=-1).time.values))
-# index_crop = indices[slice(dwave.isel(time=0).time.values,
-#                                 dwave.isel(time=-1).time.values)]
-# index_crop = index_crop.to_xarray()
+if tele == 'AO':
+    '''
+    REading index file
+    for index as txt
+    '''
+    findex = '/home/aline/Documents/Dados/ERA5/index_era5.txt'
+    indices = pd.read_csv(findex, 
+                      header=0,
+                      parse_dates=True,
+                      index_col='time',
+                      names=['time', 'id'])
+elif tele == 'NAO':
+    findex = '/home/aline/Documents/Dados/indices/NAO.txt'
+    indices = pd.read_csv(findex, sep='\s+',
+                    names=['year', 'month', 'id'],
+                    header=2,
+                    parse_dates={'time':[0, 1]},
+                    index_col='time'
+                    )
+    
+index_crop = indices[slice(dwave.isel(time=0).time.values,
+                                dwave.isel(time=-1).time.values)]
+index_crop = index_crop.id.to_xarray()
 
+'''
+# for index as nc
+'''
+# findex = '/home/aline/Documents/Dados/ERA5/index_era5.nc'
+# indices = xr.open_dataset(findex)
+# # seleciona o periodo disponivel do era5
+# indices=indices['__xarray_dataarray_variable__'].rename('indices')
+# index_crop = indices.sel(time=slice(dwave.isel(time=0).time.values,
+#                                 dwave.isel(time=-1).time.values))
+
+
+'''
 # Compute the Pearson correlation coefficient between
 # two DataArray objects along a shared dimension
-correlacao = {'Hs': xr.corr(dwave.swh, index_crop, dim='time'),
-              'Tp': xr.corr(dwave.mwp, index_crop, dim='time'),
-              'Wave Direction': xr.corr(dwave.mwd, index_crop, dim='time')}
-# correlacao = xr.Dataset(correlacao)
+'''
+# correlacao = {'Hs': xr.corr(dwave.swh.round(3), 
+#                             index_crop.round(3), dim='time'),
+#               'Tp': xr.corr(dwave.mwp.round(3), 
+#                             index_crop.round(3), dim='time'),
+#               'Wave Direction': xr.corr(dwave.mwd.round(3), 
+#                                         index_crop.round(3), dim='time')}
 
+correlacao = xr.merge(
+                        [
+                        xr.corr(dwave.swh.round(3), 
+                                index_crop.round(3), 
+                                dim='time').to_dataset(name='Hs'),
+                        xr.corr(dwave.mwp.round(3), 
+                                index_crop.round(3), 
+                                dim='time').to_dataset(name='Tp'),
+                        xr.corr(dwave.mwd.round(3), 
+                                index_crop.round(3), 
+                                dim='time').to_dataset(name='mwd')
+                        ]
+                    )
+
+correlacao.to_netcdf(path=(finalpath + 'map_corr_' + tele + '.nc'))
 
 # limites = [-104, 40, 20, 85]
 # #clevs = np.linspace(-1, 1, 10)
@@ -50,7 +93,7 @@ colormap = plt.cm.Spectral
 
 
 
-for k in correlacao.keys():
+for k in ['Hs', 'Tp', 'mwd']:
     # fig, ax = faz_mapa_corr(proj,
     #                         clevs,
     #                         coords_lim = limites)
@@ -62,37 +105,54 @@ for k in correlacao.keys():
                                 )
     fig.colorbar(cf, orientation='horizontal', 
                  pad=0.25)
-    plt.title(k + '/AO correlation')
+    plt.title(k + '/' + tele + ' correlation')
     # plt.show(block=False)
-    fig.savefig('/home/aline/Dropbox/IST_investigation/Teleconnections' +
-                '/correlacoes/'+ k + '_ao_NA_Lambert.png')
+    fig.savefig((finalpath + k + '_' + tele + '_NA_Lambert.png'))
     plt.close()
 
 " Selecionando o periodo de inverno "
 index_winter = index_crop.sel(time=index_crop['time.season']=='DJF')
 dwave_winter = dwave.sel(time=dwave['time.season']=='DJF')
-correlacao_winter = {'Hs': xr.corr(dwave_winter.swh,
-                                    index_winter, dim='time'),
-              'Tp': xr.corr(dwave_winter.mwp, index_winter, dim='time'),
-              'Wave Direction': xr.corr(dwave_winter.mwd,
-                                        index_winter, dim='time')}
+
+correlacao_winter = xr.merge(
+                        [
+                        xr.corr(dwave_winter.swh.round(3), 
+                                index_winter.round(3), 
+                                dim='time').to_dataset(name='Hs'),
+                        xr.corr(dwave_winter.mwp.round(3), 
+                                index_winter.round(3), 
+                                dim='time').to_dataset(name='Tp'),
+                        xr.corr(dwave_winter.mwd.round(3), 
+                                index_winter.round(3), 
+                                dim='time').to_dataset(name='mwd')
+                        ]
+                    )
+
+correlacao_winter.to_netcdf(path=(finalpath + 'map_corr_' + 
+                                  tele + '_winter.nc'))
+# correlacao_winter = {'Hs': xr.corr(dwave_winter.swh,
+#                                     index_winter, dim='time'),
+#               'Tp': xr.corr(dwave_winter.mwp, index_winter, dim='time'),
+#               'Wave Direction': xr.corr(dwave_winter.mwd,
+#                                         index_winter, dim='time')}
 #correlacao_winter = xr.Dataset(correlacao_winter)
 
-for k in correlacao_winter.keys():
-    fig, ax = faz_mapa_corr(proj,
-                            clevs)#,
-                            #coords_lim = limites)
+for k in ['Hs', 'Tp', 'mwd']:
+    fig, ax = faz_mapa_lambert()
+    # fig, ax = faz_mapa_corr(proj,
+    #                         clevs)#,
+    #                         #coords_lim = limites)
     cf = correlacao_winter[k].plot.contourf(levels=clevs,
                                 cmap=colormap,
                                 transform=ccrs.PlateCarree(),
-                                add_colorbar=True
+                                add_colorbar=False
                                 )
     fig.colorbar(cf, orientation='horizontal', 
                  pad=0.25)
-    plt.title(k + '/AO correlation - Winter (DJF)')
+    plt.title(k + '/' + tele + ' correlation - Winter (DJF)')
     plt.show(block=False)
-    fig.savefig('/home/aline/Dropbox/IST_investigation/Teleconnections' +
-                '/correlacoes/'+ k + '_ao_NA_winter_DJF_proj_polar.png')
+    fig.savefig((finalpath + k + '_' +
+                tele + '_NA_winter_DJF_Lambert.png'))
     plt.close()
 
 
