@@ -24,7 +24,7 @@ if tele == 'AO':
     REading index file
     for index as txt
     '''
-    findex = '/home/aline/Documents/Dados/ERA5/index_era5.txt'
+    findex = '/home/aline/Documents/Dados/indices/calculados/index_era5.txt'
     indices = pd.read_csv(findex, 
                       header=0,
                       parse_dates=True,
@@ -79,11 +79,11 @@ correlacao = xr.merge(
                         ]
                     )
 
-correlacao.to_netcdf(path=(finalpath + 'map_corr_' + tele + '.nc'))
+correlacao.to_netcdf(path=(finalpath + 'map_corr2_' + tele + '.nc'))
 
 # limites = [-104, 40, 20, 85]
 # #clevs = np.linspace(-1, 1, 10)
-clevs = np.arange(-1, 1.2, 0.2)
+clevs = np.arange(-1, 1.1, 0.1)
 colormap = plt.cm.Spectral
 # proj = ccrs.LambertConformal(central_longitude=-40,
 #                             central_latitude=50,
@@ -129,7 +129,7 @@ correlacao_winter = xr.merge(
                     )
 
 correlacao_winter.to_netcdf(path=(finalpath + 'map_corr_' + 
-                                  tele + '_winter.nc'))
+                                  tele + '_winter2.nc'))
 # correlacao_winter = {'Hs': xr.corr(dwave_winter.swh,
 #                                     index_winter, dim='time'),
 #               'Tp': xr.corr(dwave_winter.mwp, index_winter, dim='time'),
@@ -152,7 +152,7 @@ for k in ['Hs', 'Tp', 'mwd']:
     plt.title(k + '/' + tele + ' correlation - Winter (DJF)')
     plt.show(block=False)
     fig.savefig((finalpath + k + '_' +
-                tele + '_NA_winter_DJF_Lambert.png'))
+                tele + '_NA_winter_DJF_Lambert2.png'))
     plt.close()
 
 
