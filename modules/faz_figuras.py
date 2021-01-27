@@ -31,25 +31,18 @@ def faz_mapa_corr(proj, levels, coords_lim=None):
 def faz_mapa_lambert():
     proj = ccrs.LambertConformal(central_longitude=-35,
                             central_latitude=40,
-                            standard_parallels=(0, 80), cutoff=20)
+                            standard_parallels=(0, 80))
     fig, ax = plt.subplots(figsize=(20, 15),
-                            dpi=400,
+                            # dpi=400,
                             subplot_kw={'projection': proj})
     # ax = plt.axes(projection=proj)    
     ax.set_extent([-100, 30, 20, 80], crs=ccrs.PlateCarree())
-    ax.coastlines(resolution='50m')
-    ax.gridlines(alpha=0.8)
-    ax.add_feature(cfeature.LAND, 
-                   # color='gray',
-                   alpha=0.8,
-                   zorder=100, 
-                   edgecolor='black')
-    ax.add_feature(cfeature.BORDERS, linestyle='-', alpha=.8)
-    ax.yaxis.tick_left()
-    
-    # *must* call draw in order to get the axis boundary used to add ticks:
-    fig.canvas.draw()
-    
+    ax.coastlines()
+    # ax.add_feature(cfeature.LAND, 
+    #                # color='gray',
+    #                alpha=0.8,
+    #                zorder=100, 
+    #                edgecolor='black')
     # Define gridline locations and draw the lines using cartopy's built-in gridliner:
     xticks = [-100, -90, -80, -70, -60, -50, -40, 
               -30, -20, -11, 0, 10, 20, 30]
@@ -58,17 +51,13 @@ def faz_mapa_lambert():
     #yticks = list(ax.get_yticks())
     ax.gridlines(xlocs=xticks, ylocs=yticks)
     
-    
     # Make a boundary path in PlateCarree projection, I choose to start in
     # the bottom left and go round anticlockwise, creating a boundary point
     # every 1 degree so that the result is smooth:
-        # faz com que a minha figura fique conica
     vertices = [(lon, 20) for lon in range(-100, 31, 1)] + \
                [(lon, 80) for lon in range(30, -101, -1)]
     boundary = mpath.Path(vertices)
     ax.set_boundary(boundary, transform=ccrs.PlateCarree())
-    ax.gridlines(draw_labels=True)
-    
     # # # Fazendo os labels na mao...
     # # # longitude
     # ax.text(-88, 20, '90°W', transform=ccrs.PlateCarree(),
