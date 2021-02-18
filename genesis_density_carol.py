@@ -18,6 +18,9 @@ def add_labels_lcm(wks,map,dlat,dlon):
   else:
      HEMISPHERE = "SH"
 
+
+
+
 #-- pick some "nice" values for the latitude labels.
   lat_values = np.arange(int(minlat+5),int(maxlat),10)
   #lat_values = lat_values.astype(float)
