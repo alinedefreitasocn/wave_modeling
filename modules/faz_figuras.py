@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import matplotlib.path as mpath
 import cartopy.feature as cfeature
+import numpy as np
 
 
 
@@ -92,10 +93,41 @@ def faz_mapa_lambert():
     
     return fig, ax
 
-def faz_map_nbtools():
-    from nbtools.map import Lambert
+def plot_correlacao(data, k, tele, s):
+    clevs = np.linspace(-1, 1, 21)
+    colormap = plt.cm.Spectral
+
+    fig, ax = faz_mapa_lambert()
+    cf = data[k].plot.contourf(levels=clevs,
+                            cmap=colormap,
+                            transform=ccrs.PlateCarree(),
+                            add_colorbar=False
+                            )
+    fig.colorbar(cf, orientation='horizontal', 
+              pad=0.03, shrink=0.8)
     
-    lamb=Lambert(-100,30,20,80)
+    significant = data.where(abs(data) > s)
+
+    significant[k].plot.contourf(colors='none', 
+                                    hatches = ['///'], 
+                                    transform=ccrs.PlateCarree(),
+                                    add_colorbar=False)
+    fig.tight_layout()
+    ax.add_feature(cfeature.LAND, 
+                   # color='gray',
+                   alpha=0.8,
+                   zorder=100, 
+                   edgecolor='black')
+    plt.title(k + '/' + tele + ' correlation')
+
+    return fig, ax
+
+
+
+# def faz_map_nbtools():
+#     from nbtools.map import Lambert
+    
+#     lamb=Lambert(-100,30,20,80)
 
 
 # def corrige_colorbar(fig, ax):

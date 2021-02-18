@@ -131,30 +131,30 @@ correlacao.to_netcdf(path=(finalpath + 'map_corr2_' + tele + '.nc'))
 # proj= ccrs.Orthographic(0, 90)
 
 
-for k in ['Hs', 'Tp', 'Mwd']:
-    # fig, ax = faz_mapa_corr(proj,
-    #                         clevs,
-    #                         coords_lim = limites)
-    fig, ax = faz_mapa_lambert()
-    cf = correlacao[k].plot.contourf(levels=clevs,
-                                cmap=colormap,
-                                transform=ccrs.PlateCarree(),
-                                add_colorbar=False
-                                )
+# for k in ['Hs', 'Tp', 'Mwd']:
+#     # fig, ax = faz_mapa_corr(proj,
+#     #                         clevs,
+#     #                         coords_lim = limites)
+#     fig, ax = faz_mapa_lambert()
+#     cf = correlacao[k].plot.contourf(levels=clevs,
+#                                 cmap=colormap,
+#                                 transform=ccrs.PlateCarree(),
+#                                 add_colorbar=False
+#                                 )
     
-    fig.colorbar(cf, orientation='horizontal', 
-                  pad=0.03, shrink=0.8)
-    fig.tight_layout()
-    ax.add_feature(cfeature.LAND, 
-                   # color='gray',
-                   alpha=0.8,
-                   zorder=100, 
-                   edgecolor='black')
-    plt.title(k + '/' + tele + ' correlation')
-    # plt.show(block=False)
-    fig.savefig((finalpath + k + '_' + tele + '_NA_Lambert.png'),
-                dpi=400)
-    plt.close()
+#     fig.colorbar(cf, orientation='horizontal', 
+#                   pad=0.03, shrink=0.8)
+#     fig.tight_layout()
+#     ax.add_feature(cfeature.LAND, 
+#                    # color='gray',
+#                    alpha=0.8,
+#                    zorder=100, 
+#                    edgecolor='black')
+#     plt.title(k + '/' + tele + ' correlation')
+#     # plt.show(block=False)
+#     fig.savefig((finalpath + k + '_' + tele + '_NA_Lambert.png'),
+#                 dpi=400)
+#     plt.close()
 
 # Selecting winter season for wave
 dwave_winter = dwave.sel(time=dwave['time.season']=='DJF')
@@ -183,30 +183,30 @@ correlacao_winter.to_netcdf(path=(finalpath + 'map_corr_' +
 #                                         index_winter, dim='time')}
 #correlacao_winter = xr.Dataset(correlacao_winter)
 
-for k in ['Hs', 'Tp', 'mwd']:
-    fig, ax = faz_mapa_lambert()
-    # fig, ax = faz_mapa_corr(proj,
-    #                         clevs)#,
-    #                         #coords_lim = limites)
-    cf = correlacao_winter[k].plot.contourf(levels=clevs,
-                                cmap=colormap,
-                                transform=ccrs.PlateCarree(),
-                                add_colorbar=False
-                                )
-    fig.colorbar(cf, orientation='horizontal', 
-                  pad=0.03, shrink=0.8)
-    fig.tight_layout()
-    ax.add_feature(cfeature.LAND, 
-                   # color='gray',
-                   alpha=0.8,
-                   zorder=100, 
-                   edgecolor='black')
-    plt.title(k + '/' + tele + ' correlation - Winter (DJF)')
-    plt.show(block=False)
-    fig.savefig((finalpath + k + '_' +
-                tele + '_NA_winter_DJF_Lambert2.png'),
-                dpi=400)
-    plt.close()
+# for k in ['Hs', 'Tp', 'mwd']:
+#     fig, ax = faz_mapa_lambert()
+#     # fig, ax = faz_mapa_corr(proj,
+#     #                         clevs)#,
+#     #                         #coords_lim = limites)
+#     cf = correlacao_winter[k].plot.contourf(levels=clevs,
+#                                 cmap=colormap,
+#                                 transform=ccrs.PlateCarree(),
+#                                 add_colorbar=False
+#                                 )
+#     fig.colorbar(cf, orientation='horizontal', 
+#                   pad=0.03, shrink=0.8)
+#     fig.tight_layout()
+#     ax.add_feature(cfeature.LAND, 
+#                    # color='gray',
+#                    alpha=0.8,
+#                    zorder=100, 
+#                    edgecolor='black')
+#     plt.title(k + '/' + tele + ' correlation - Winter (DJF)')
+#     plt.show(block=False)
+#     fig.savefig((finalpath + k + '_' +
+#                 tele + '_NA_winter_DJF_Lambert2.png'),
+#                 dpi=400)
+#     plt.close()
 
 
 
@@ -261,29 +261,29 @@ correlacao.to_netcdf(path=(finalpath + 'map_corr_wind_' + tele + '.nc'))
 #                         dpi=400)
 # axs = axs.ravel()
 
-for k in ['wspd', 'U', 'V']:
-    # fig, ax = faz_mapa_corr(proj,
-    #                         clevs,
-    #                         coords_lim = limites)
-    fig, ax = faz_mapa_lambert()
-    cf = correlacao[k].plot.contourf(levels=clevs,
-                                cmap=colormap,
-                                transform=ccrs.PlateCarree(),
-                                add_colorbar=False
-                                )
-    fig.colorbar(cf, orientation='horizontal', 
-                  pad=0.03, shrink=0.8)
-    fig.tight_layout()
-    plt.title(k + '/' + tele + ' correlation')
-    ax.add_feature(cfeature.LAND, 
-                   # color='gray',
-                   alpha=0.8,
-                   zorder=100, 
-                   edgecolor='black')
-    # plt.show(block=False)
-    fig.savefig((finalpath + k + '_wind_' + tele + '_NA_Lambert.png'),
-                dpi=400)
-    plt.close()
+# for k in ['wspd', 'U', 'V']:
+#     # fig, ax = faz_mapa_corr(proj,
+#     #                         clevs,
+#     #                         coords_lim = limites)
+#     fig, ax = faz_mapa_lambert()
+#     cf = correlacao[k].plot.contourf(levels=clevs,
+#                                 cmap=colormap,
+#                                 transform=ccrs.PlateCarree(),
+#                                 add_colorbar=False
+#                                 )
+#     fig.colorbar(cf, orientation='horizontal', 
+#                   pad=0.03, shrink=0.8)
+#     fig.tight_layout()
+#     plt.title(k + '/' + tele + ' correlation')
+#     ax.add_feature(cfeature.LAND, 
+#                    # color='gray',
+#                    alpha=0.8,
+#                    zorder=100, 
+#                    edgecolor='black')
+#     # plt.show(block=False)
+#     fig.savefig((finalpath + k + '_wind_' + tele + '_NA_Lambert.png'),
+#                 dpi=400)
+#     plt.close()
 
 # Selecting winter season for wave
 dwind_winter = dwind.sel(time=dwind['time.season']=='DJF')
@@ -312,30 +312,30 @@ correlacao_winter.to_netcdf(path=(finalpath + 'map_corr_wind_' +
 #                                         index_winter, dim='time')}
 #correlacao_winter = xr.Dataset(correlacao_winter)
 
-for k in ['wspd', 'U', 'V']:
-    fig, ax = faz_mapa_lambert()
-    # fig, ax = faz_mapa_corr(proj,
-    #                         clevs)#,
-    #                         #coords_lim = limites)
-    cf = correlacao_winter[k].plot.contourf(levels=clevs,
-                                cmap=colormap,
-                                transform=ccrs.PlateCarree(),
-                                add_colorbar=False
-                                )
-    fig.colorbar(cf, orientation='horizontal', 
-                  pad=0.03, shrink=0.8)
-    fig.tight_layout()
-    ax.add_feature(cfeature.LAND, 
-                   # color='gray',
-                   alpha=0.8,
-                   zorder=100, 
-                   edgecolor='black')
-    plt.title(k + '/' + tele + ' correlation - Winter (DJF)')
-    plt.show(block=False)
-    fig.savefig((finalpath + k + '_' +
-                tele + '_wind_NA_winter_DJF_Lambert.png'),
-                dpi=400)
-    plt.close()
+# for k in ['wspd', 'U', 'V']:
+#     fig, ax = faz_mapa_lambert()
+#     # fig, ax = faz_mapa_corr(proj,
+#     #                         clevs)#,
+#     #                         #coords_lim = limites)
+#     cf = correlacao_winter[k].plot.contourf(levels=clevs,
+#                                 cmap=colormap,
+#                                 transform=ccrs.PlateCarree(),
+#                                 add_colorbar=False
+#                                 )
+#     fig.colorbar(cf, orientation='horizontal', 
+#                   pad=0.03, shrink=0.8)
+#     fig.tight_layout()
+#     ax.add_feature(cfeature.LAND, 
+#                    # color='gray',
+#                    alpha=0.8,
+#                    zorder=100, 
+#                    edgecolor='black')
+#     plt.title(k + '/' + tele + ' correlation - Winter (DJF)')
+#     plt.show(block=False)
+#     fig.savefig((finalpath + k + '_' +
+#                 tele + '_wind_NA_winter_DJF_Lambert.png'),
+#                 dpi=400)
+#     plt.close()
 
 
 '''
@@ -387,29 +387,29 @@ correlacao.to_netcdf(path=(finalpath + 'map_corr_wind_wave_' + tele + '.nc'))
 #                         dpi=400)
 # axs = axs.ravel()
 
-for k in ['MPWW', 'SHWW']:
-    # fig, ax = faz_mapa_corr(proj,
-    #                         clevs,
-    #                         coords_lim = limites)
-    fig, ax = faz_mapa_lambert()
-    cf = correlacao[k].plot.contourf(levels=clevs,
-                                cmap=colormap,
-                                transform=ccrs.PlateCarree(),
-                                add_colorbar=False
-                                )
-    fig.colorbar(cf, orientation='horizontal', 
-                  pad=0.03, shrink=0.8)
-    fig.tight_layout()
+# for k in ['MPWW', 'SHWW']:
+#     # fig, ax = faz_mapa_corr(proj,
+#     #                         clevs,
+#     #                         coords_lim = limites)
+#     fig, ax = faz_mapa_lambert()
+#     cf = correlacao[k].plot.contourf(levels=clevs,
+#                                 cmap=colormap,
+#                                 transform=ccrs.PlateCarree(),
+#                                 add_colorbar=False
+#                                 )
+#     fig.colorbar(cf, orientation='horizontal', 
+#                   pad=0.03, shrink=0.8)
+#     fig.tight_layout()
     
-    ax.add_feature(cfeature.LAND, 
-                   # color='gray',
-                   alpha=0.8,
-                   zorder=100, 
-                   edgecolor='black')
-    # plt.show(block=False)
-    fig.savefig((finalpath + k + '_wind_wave_' + tele + '_NA_Lambert.png'),
-                dpi=400)
-    plt.close()
+#     ax.add_feature(cfeature.LAND, 
+#                    # color='gray',
+#                    alpha=0.8,
+#                    zorder=100, 
+#                    edgecolor='black')
+#     # plt.show(block=False)
+#     fig.savefig((finalpath + k + '_wind_wave_' + tele + '_NA_Lambert.png'),
+#                 dpi=400)
+#     plt.close()
 
 # Selecting winter season for wave
 dww_winter = dww.sel(time=dww['time.season']=='DJF')
@@ -435,30 +435,30 @@ correlacao_winter.to_netcdf(path=(finalpath + 'map_corr_wind_wave_' +
 #                                         index_winter, dim='time')}
 #correlacao_winter = xr.Dataset(correlacao_winter)
 
-for k in ['MPWW', 'SHWW']:
-    fig, ax = faz_mapa_lambert()
-    # fig, ax = faz_mapa_corr(proj,
-    #                         clevs)#,
-    #                         #coords_lim = limites)
-    cf = correlacao_winter[k].plot.contourf(levels=clevs,
-                                cmap=colormap,
-                                transform=ccrs.PlateCarree(),
-                                add_colorbar=False
-                                )
-    # current_cmap = copy.copy(matplotlib.cm.get_cmap())
-    # current_cmap.set_bad(color='white')
-    fig.colorbar(cf, orientation='horizontal', 
-                  pad=0.03, shrink=0.8)
-    fig.tight_layout()
-    ax.add_feature(cfeature.LAND, 
-                   # color='gray',
-                   alpha=1,
-                   zorder=100, 
-                   edgecolor='black')
-    plt.title(k + '/' + tele + ' correlation - Winter (DJF)')
-    # plt.show(block=False)
-    fig.savefig((finalpath + k + '_' +
-                tele + '_wind_wave_NA_winter_DJF_Lambert.png'),
-                dpi=400)
-    plt.close()
+# for k in ['MPWW', 'SHWW']:
+#     fig, ax = faz_mapa_lambert()
+#     # fig, ax = faz_mapa_corr(proj,
+#     #                         clevs)#,
+#     #                         #coords_lim = limites)
+#     cf = correlacao_winter[k].plot.contourf(levels=clevs,
+#                                 cmap=colormap,
+#                                 transform=ccrs.PlateCarree(),
+#                                 add_colorbar=False
+#                                 )
+#     # current_cmap = copy.copy(matplotlib.cm.get_cmap())
+#     # current_cmap.set_bad(color='white')
+#     fig.colorbar(cf, orientation='horizontal', 
+#                   pad=0.03, shrink=0.8)
+#     fig.tight_layout()
+#     ax.add_feature(cfeature.LAND, 
+#                    # color='gray',
+#                    alpha=1,
+#                    zorder=100, 
+#                    edgecolor='black')
+#     plt.title(k + '/' + tele + ' correlation - Winter (DJF)')
+#     # plt.show(block=False)
+#     fig.savefig((finalpath + k + '_' +
+#                 tele + '_wind_wave_NA_winter_DJF_Lambert.png'),
+#                 dpi=400)
+#     plt.close()
 
