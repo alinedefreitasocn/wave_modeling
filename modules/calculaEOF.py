@@ -17,7 +17,7 @@
 import numpy as np
 from eofs.xarray import Eof
 
-def calcEOF(xrdata, data_var, w, wei=True):
+def calcEOF(xrdata, data_var, w, centered, wei=True):
     """
     input:
         xrdata: xarray Dataset
@@ -34,27 +34,33 @@ def calcEOF(xrdata, data_var, w, wei=True):
         xrdata = xrdata.sel(level=1000,
                             latitude=slice(90,20),
                             time=slice("1979-01-01", "2000-12-31"))
-        print('Data selection OK on first try')
+        print('Data selection OK on first try. Level, lat and time slice done.')
     except ValueError:
         try:
             print('valueError: Trying next')
             xrdata = xrdata.sel(level=1000,
                                 lat=slice(90,20),
                                 time=slice("1979-01-01", "2000-12-31"))
-            print('Data selection OK on second try')
+            print('Data selection OK on second try. Level, lat and time slice done.')
         except ValueError:
             try:
                 print('valueError: Trying next')
                 xrdata = xrdata.sel(
                                     latitude=slice(90,20),
                                     time=slice("1979-01-01", "2000-12-31"))
-                print('Data selection OK on third try')
-            except:
-                raise TypeError(' Data out of limits')
+                print('Data selection OK on third try. No level cut')
+            except ValueError:
+                try:
+                    print('valueError: Trying next')
+                    xrdata = xrdata.sel(
+                                        time=slice("1979-01-01", "2000-12-31"))
+                    print('Data selection OK on fourth try. Only time slice.')
+                except:
+                    raise TypeError(' Data out of limits')
 
 
     xrdata = (xrdata.groupby('time.month') -
-              xrdata.hgt.groupby('time.month').mean())
+              xrdata[data_var].groupby('time.month').mean())
     #  To ensure equal area weighting for the covariance matrix,
     # the gridded data is weighted by the square root of the cosine of
     # latitude. - NOAA
@@ -82,9 +88,9 @@ def calcEOF(xrdata, data_var, w, wei=True):
 
         # “The covariance matrix is used for the EOF analysis.” - NOAA """
 
-        solver = Eof(xrdata[data_var], weights=wgts, center=True)
+        solver = Eof(xrdata[data_var], weights=wgts, center=centered)
     else:
-        solver = Eof(xrdata[data_var], center=True)
+        solver = Eof(xrdata[data_var], center=centered)
     # solver = Eof(s_anomalie.hgt, weights=wgts, center=False)
     # Retrieve the leading EOF, expressed as the covariance between the leading PC
     # time series and the input SLP anomalies at each grid point.

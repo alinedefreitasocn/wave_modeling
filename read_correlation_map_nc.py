@@ -11,7 +11,7 @@ import xarray as xr
 from faz_figuras import *
 import matplotlib as mpl
 
-mpl.rcParams['hatch.linewidth'] = 0.5
+# mpl.rcParams['hatch.linewidth'] = 0.5
 significant = 0.16
 significant_winter = 0.3
 

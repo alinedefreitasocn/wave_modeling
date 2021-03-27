@@ -142,6 +142,7 @@ def add_labels_lcm(wks,map,dlat,dlon):
 
 ############################################################################
 ######## MAIN
+hem='N'
 
 model = sys.argv[1]; hem = sys.argv[2]; thr_label = sys.argv[3]
 period = sys.argv[4] ; seas = sys.argv[5] ; nlabel = sys.argv[6]
@@ -171,21 +172,22 @@ else:
 	minlon  = -120.#-85. 
 	minlat  = 25.  
 	maxlon  = 5.  
-	maxlat  = 70.  
+	maxlat  = 80.  
 
 # open file
-ds_mean = xr.open_dataset(fname_mean, engine='pynio') 
+# ds_mean = xr.open_dataset(fname_mea, engine='pynio') 
+ds_mean = xr.open_dataset(basefilename + wwvc) 
 ds_std = xr.open_dataset(fname_std, engine='pynio') 
 
-var1 = ds_mean.variables['gden']
-lon = ds_mean.variables['long'] 
-lat = ds_mean.variables['lat']
+var1 = ds_mean.variables['Hs']
+lon = ds_mean.coords['longitude'] 
+lat = ds_mean.coords['latitude']
 
 #---------------------------------------------------
 # ------- plot (Ngl).
 
 wks_type = "png"
-wks = Ngl.open_wks(wks_type,'{}_gden'.format(fsave))
+wks = Ngl.open_wks(wks_type,"ngl01p")
 
 cnres                 = Ngl.Resources()
 cnres.nglFrame        = False

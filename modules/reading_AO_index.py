@@ -43,4 +43,4 @@ def read_index():
     plt.ylim(-4.5, 4.5)
     plt.show(block=False)
 
-    return fig, ax
+    return f, fig, ax
