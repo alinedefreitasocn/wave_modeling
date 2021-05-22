@@ -93,8 +93,9 @@ def faz_mapa_lambert():
     
     return fig, ax
 
-def plot_correlacao(data, k, tele, s):
-    clevs = np.linspace(-1, 1, 21)
+def plot_correlacao(data, k, tele, significance_level, 
+                    clevs=np.linspace(-1, 1, 21)):
+    # clevs = np.linspace(-1, 1, 21)
     colormap = plt.cm.Spectral
 
     fig, ax = faz_mapa_lambert()
@@ -106,7 +107,7 @@ def plot_correlacao(data, k, tele, s):
     fig.colorbar(cf, orientation='horizontal', 
               pad=0.03, shrink=0.8)
     
-    significant = data.where(abs(data) > s)
+    significant = data.where(abs(data) > significance_level)
 
     significant[k].plot.contourf(colors='none', 
                                     hatches = ['///'], 

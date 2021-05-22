@@ -30,7 +30,7 @@ eof1_norm = ((eof1.sel(mode=0) * (-1)) /
 
 hgt = historical - historical.hgt.mean(dim='time')
 hgt = hgt.groupby('time.month') - hgt.hgt.groupby('time.month').mean()
-pseudo_pcs = solver.projectField(hgt.hgt) /solver.pcs(npcs=1).std()
+pseudo_pcs = (solver.projectField(hgt.hgt) * (-1))/solver.pcs(npcs=1).std()
 
 pseudo_pcs.sel(mode=0).to_netcdf(mypath + 'index_historical1.nc')
 

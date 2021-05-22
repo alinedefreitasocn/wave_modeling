@@ -83,6 +83,7 @@ fwave = '/home/aline/Documents/Dados/ERA5/montly_mean_1979_2020.grib'
 dwave = cfgrib.open_datasets(fwave)[0]
 
 
+
 # cropping index time series to match data
 index_crop = indices[slice(dwave.isel(time=0).time.values,
                                 dwave.isel(time=-1).time.values)]
