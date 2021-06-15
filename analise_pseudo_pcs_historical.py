@@ -68,8 +68,8 @@ ppcs = pd.DataFrame(data=pseudo_pcs.indice.values,
 ppcs = ppcs['1980-01-01':'2100-12-31']
 mensal_completo = ppcs.groupby(ppcs.index.month)
 
-cmip_presente = ppcs['1980-01-01':'2010-12-01']
-era_presente = indices['1980-01-01':'2010-12-01']
+cmip_presente = ppcs['1990-01-01':'2020-12-01']
+era_presente = indices['1990-01-01':'2020-12-01']
 cmip_futuro = ppcs['2070-01-01':'2100-12-01']
 
 
@@ -306,7 +306,7 @@ for j in range(4):
                  facecolor ='turquoise',
                  bins = b,
                  label='CMIP5',
-                 hatch='//',
+                 #hatch='//',
                  edgecolor='k',
                  linewidth=0.5)
     plt.hist(grouped_era_season.get_group(unique_season[j]), 
@@ -315,7 +315,7 @@ for j in range(4):
                   facecolor ='lightsalmon',
                   bins = b,
                   label='ERA5',
-                  hatch='--',
+                  #hatch='--',
                   edgecolor='k',
                   linewidth=0.5)
     plt.hist(grouped_futuro_season.get_group(unique_season[j]), 
