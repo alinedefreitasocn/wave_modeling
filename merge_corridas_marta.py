@@ -33,8 +33,8 @@ waves = waves.drop_vars('MAPSTA')
 waves= waves.sel(latitude=slice(20,90), longitude= slice(-101,  35))
 
 
-hs_mean = waves.resample(time='BMS').mean()
-hs_mean.to_netcdf(mypath + 'presente_hs_mean_mensal.nc')
+hs_mean = waves.resample(time='MS').mean()
+hs_mean.to_netcdf(mypath + 'futuro_hs_mean_mensal2.nc')
 
 hs_max = waves.resample(time='BMS').max()
 hs_max.to_netcdf(mypath + 'presente_hs_max_mensal.nc')

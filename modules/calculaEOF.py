@@ -17,7 +17,7 @@
 import numpy as np
 from eofs.xarray import Eof
 
-def calcEOF(xrdata, data_var, w, centered, wei=True):
+def calcEOF(xrdata, data_var, w, wei=True):
     """
     input:
         xrdata: xarray Dataset
@@ -53,7 +53,8 @@ def calcEOF(xrdata, data_var, w, centered, wei=True):
                 try:
                     print('valueError: Trying next')
                     xrdata = xrdata.sel(
-                                        time=slice("1979-01-01", "2000-12-31"))
+                                        time=slice("1979-01-01", 
+                                                   "2000-12-31"))
                     print('Data selection OK on fourth try. Only time slice.')
                 except:
                     raise TypeError(' Data out of limits')
@@ -88,9 +89,9 @@ def calcEOF(xrdata, data_var, w, centered, wei=True):
 
         # “The covariance matrix is used for the EOF analysis.” - NOAA """
 
-        solver = Eof(xrdata[data_var], weights=wgts, center=centered)
+        solver = Eof(xrdata[data_var], weights=wgts)
     else:
-        solver = Eof(xrdata[data_var], center=centered)
+        solver = Eof(xrdata[data_var])
     # solver = Eof(s_anomalie.hgt, weights=wgts, center=False)
     # Retrieve the leading EOF, expressed as the covariance between the leading PC
     # time series and the input SLP anomalies at each grid point.

@@ -23,9 +23,8 @@ mypath = '/home/aline/Documents/Dados/Jerry/GEOPOT_1000hPa/'
 
 historical = xr.open_dataset(mypath + 'Historical_concat_1960_2100(1).nc')
 
-solver, eof1, var1 = calcEOF(historical, 'hgt', 'lat', centered=False)
-eof1_norm = ((eof1.sel(mode=0) * (-1)) /
-            eof1.sel(mode=0).std())
+solver, eof1, var1 = calcEOF(historical, 'hgt', 'lat')
+eof1_norm = (eof1.sel(mode=0) * (-1)) / eof1.sel(mode=0).std()
 
 
 hgt = historical - historical.hgt.mean(dim='time')

@@ -42,6 +42,7 @@ file = "/home/aline/Documents/Dados/NCEP_NCAR/hgt.mon.mean.nc"
 
 # reading data and selecting level, time and latitude (HN)
 f = xr.open_dataset(file)
+f = f.sel(level=1000, lat= slice(90,20))
 
 # """
 # “To identify the leading teleconnection patterns in the
@@ -85,8 +86,7 @@ index (1979-2000 base period” - NOAA """
 f = f - f.hgt.mean(dim='time')
 f = f.groupby('time.month') - f.hgt.groupby('time.month').mean()
 
-pseudo_pcs = ((solver.projectField(f.hgt.sel(level=1000,
-                                             lat= slice(90,20))) * (-1))/
+pseudo_pcs_era = ((solver.projectField(f.hgt) * (-1))/
                 solver.pcs(npcs=1).std())
 
 

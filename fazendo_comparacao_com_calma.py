@@ -18,118 +18,238 @@ import matplotlib
 import cartopy.crs as ccrs
 import numpy as np
 from faz_figuras import *
-
-
 from xskillscore import pearson_r
-
-# general definitions
-tele = 'AO'
-finalpath = (r'/home/aline/Dropbox/IST_investigation'
-                           '/Teleconnections/correlacoes/' + tele + '/')
 
 # clevs = np.arange(-1, 1.1, 0.1)
 clevs = np.linspace(-1, 1, 21)
 colormap = plt.cm.Spectral
 
-if tele == 'AO':
+# significancias estatisticas de pearson
+n30_95 = 0.3610 #95%
+n30_90 = 0.3060
+n30_80 = 0.2407
+
+n100_95 = 0.1946 #95%
+n100_90 = 0.1638
+n100_80 = 0.1279
+
+modelo = 'ERA5'
+modelo = 'CMIP5'
+
+tempo = 'presente'
+tempo = 'futuro'
+
+if modelo == 'ERA5':
     '''
     REading index file
     for index as txt
     '''
     findex = '/home/aline/Documents/Dados/indices/calculados/index_era5.txt'
-    indices = pd.read_csv(findex, 
+    pseudo_pcs = pd.read_csv(findex, 
                       header=0,
                       parse_dates=True,
                       index_col='time',
-                      names=['time', 'id'])
+                      names=['time', 'indice'])
     
-# selecionando 30 anos do ERA5 que representa o tempo presente: 
-# de 1980 a 2020
-# reading wave file
-fwave = '/home/aline/Documents/Dados/ERA5/montly_mean_1979_2020.grib'
-dwave = cfgrib.open_datasets(fwave)[0]
-dwave = dwave.sel(time=slice('1990-01-01','2020-12-01'),
-                  latitude=slice(90,20), 
-                  longitude= slice(-101,  35))
+    # selecionando 30 anos do ERA5 que representa o tempo presente: 
+    # de 1980 a 2020
+    # reading wave file
+    fwave = '/home/aline/Documents/Dados/ERA5/montly_mean_1979_2020.grib'
+    dwave = cfgrib.open_datasets(fwave)[0]
+    dwave = dwave.sel(time=slice('1990-01-01','2020-12-01'),
+                      latitude=slice(90,20), 
+                      longitude= slice(-101,  35))
+elif modelo == 'CMIP5':
+    indexpath = '/home/aline/Documents/Dados/Jerry/GEOPOT_1000hPa/'
+    if tempo == 'presente':
+        mypath = '/home/aline/Documents/Dados/Jerry/WW3_Marta/Presente/'
+        #mypath = '/home/aline/Documents/Dados/Jerry/WW3_Marta/Futuro/'
+        fwave = mypath + 'presente_hs_mean_mensal2.nc'
+        #fwave = mypath + 'futuro_hs_mean_mensal2.nc'
+    elif tempo == 'futuro':
+        mypath = '/home/aline/Documents/Dados/Jerry/WW3_Marta/Futuro/'
+        fwave = mypath + 'futuro_hs_mean_mensal2.nc'
+    dwave = xr.open_dataset(fwave).rename({'hs':'swh'})
+    
+    pseudo_pcs = xr.open_dataset(indexpath + 'index_historical1.nc')
+    
+    pseudo_pcs = pseudo_pcs.rename({'__xarray_dataarray_variable__':'indice'})
+    pseudo_pcs = pd.DataFrame(data=pseudo_pcs.indice.values, 
+                        index=pseudo_pcs.time.values, 
+                        columns=['indice'])
+    # precisei fazer essas transformacoes para calcular a correlacao
+    # nao estava identificando a dimensao time na serie ppcs (estava como index)
+    # e nao sei por qual motivo estava com algumas medias mensais com o 
+    # indice no segundo dia do mes...
+    datetime_indices = {'YEAR': pseudo_pcs.index.year, 
+                        'MONTH': pseudo_pcs.index.month,
+                        'DAY': np.ones(len(pseudo_pcs), dtype=int)}
+    pseudo_pcs.index = pd.to_datetime(datetime_indices)
+    pseudo_pcs.index.name = 'time'
+    
+
+# recortando para que o indice tenha a mesma serie temporal do 
+# modelo de ondas  
+ppcs = pseudo_pcs[slice(dwave.isel(time=0).time.values, 
+                           dwave.isel(time=-1).time.values)]
+
+pseudo_pcs = pseudo_pcs[slice(dwave.isel(time=0).time.values, 
+                           dwave.isel(time=-1).time.values)].to_xarray()
+pseudo_pcs = pseudo_pcs.expand_dims({'latitude': dwave.latitude, 
+                           'longitude': dwave.longitude})
+# unindo onda e indice
+hs_ppcs = xr.merge([dwave, pseudo_pcs])
 
 # removendo media mensal
-medias_mensais_era = dwave.swh.groupby('time.month').mean('time')
-deseason_era = dwave.swh.groupby('time.month') - medias_mensais_era
-deseason_era = deseason_era.drop('month')
-
-# cropping index time series to match data
-index_crop = indices[slice(dwave.isel(time=0).time.values,
-                                dwave.isel(time=-1).time.values)]
-index_crop = index_crop.id.to_xarray()
-
-corr_era5 = xr.corr(dwave.swh.round(3), 
-                                index_crop.round(3), 
-                                dim='time').to_dataset(name='Hs')
-
-fig, ax = faz_mapa_lambert()
-cd = corr_era5.Hs.plot(levels=clevs,
-                                cmap=colormap,
-                                transform=ccrs.PlateCarree(),
-                                add_colorbar=False)
-plt.title('correlation ERA5 Hs/AO index - 1990 : 2020')
-
-
-# mesma coisa para o CMIP5
-indexpath = '/home/aline/Documents/Dados/Jerry/GEOPOT_1000hPa/'
-
-mypath = '/home/aline/Documents/Dados/Jerry/WW3_Marta/Presente/'
-wf = mypath + 'presente_hs_mean_mensal.nc'
-hs = xr.open_dataset(wf)
-
-# removendo media mensal
-medias_mensais = hs.hs.groupby('time.month').mean('time')
-deseason = hs.hs.groupby('time.month') - medias_mensais
+medias_mensais = dwave.swh.groupby('time.month').mean('time')
+deseason = dwave.swh.groupby('time.month') - medias_mensais
 deseason = deseason.drop('month')
 
+#unindo onda e indice
+hs_deseason_ppcs = xr.merge([deseason, pseudo_pcs])
 
-pseudo_pcs = xr.open_dataset(indexpath + 'index_historical1.nc')
-
-pseudo_pcs = pseudo_pcs.rename({'__xarray_dataarray_variable__':'indice'})
-ppcs = pd.DataFrame(data=pseudo_pcs.indice.values, 
-                    index=pseudo_pcs.time.values, 
-                    columns=['pseudo_pcs'])
-# precisei fazer essas transformacoes para calcular a correlacao
-# nao estava identificando a dimensao time na serie ppcs (estava como index)
-# e nao sei por qual motivo estava com algumas medias mensais com o 
-# indice no segundo dia do mes...
-datetime_indices = {'YEAR': ppcs.index.year, 'MONTH': ppcs.index.month,
-                    'DAY': np.ones(len(ppcs), dtype=int)}
-ppcs.index = pd.to_datetime(datetime_indices)
-ppcs.index.name = 'time'
-
-ppcs = ppcs[slice(hs.isel(time=0).time.values, 
-                           hs.isel(time=-1).time.values)].to_xarray()
-ppcs = ppcs.expand_dims({'latitude': hs.latitude, 
-                           'longitude':hs.longitude})
-
-hs_ppcs = xr.merge([hs, ppcs])
-hs_deseason_ppcs = xr.merge([deseason, ppcs])
-
-correlacao_cmip = xr.corr(hs_ppcs.hs, 
-                     hs_ppcs.pseudo_pcs, 
-                     dim='time').to_dataset(name='Hs')
-
-correlacao_cmip_deseason = xr.corr(hs_deseason_ppcs.hs, 
-                     hs_deseason_ppcs.pseudo_pcs, 
-                     dim='time').to_dataset(name='Hs')
+# plotando só pra ver
+hs_ppcs.swh.sel(latitude=40,
+                longitude=-10.5,
+                method='nearest').plot()
+hs_deseason_ppcs.swh.sel(latitude=40,
+                         longitude=-10.5,
+                         method='nearest').plot()
 
 
+# calculando a correlacao
+correlation = xr.corr(hs_ppcs.swh, 
+                    hs_ppcs.indice, 
+                    dim='time').to_dataset(name='Hs')
 
 fig, ax = faz_mapa_lambert()
-cd = correlacao_cmip.Hs.plot(levels=clevs,
+cd = correlation.Hs.plot(levels=clevs,
                                 cmap=colormap,
                                 transform=ccrs.PlateCarree(),
                                 add_colorbar=False)
-plt.title('correlation CMIP5 Hs/AO index - 1990 : 2020')
+
+significant = correlation.where(abs(correlation) > siglev)
+
+significant['Hs'].plot.contourf(colors='none', 
+                                hatches = ['///'], 
+                                transform=ccrs.PlateCarree(),
+                                add_colorbar=False)
+
+if tempo == 'presente':
+    plt.title('Correlation ' + modelo + ' Hs/AO index - 1990 : 2020')
+elif tempo == 'futuro':
+    plt.title('Correlation ' + modelo + ' Hs/AO index - 2070 : 2100')
+
+
+# e agora a correlacao com os resultados sem a sazonalidade
+corr_deseason = xr.corr(hs_deseason_ppcs.swh, 
+                        hs_deseason_ppcs.indice, 
+                        dim='time').to_dataset(name='Hs')
+
 
 fig, ax = faz_mapa_lambert()
-cd = correlacao_cmip_deseason.Hs.plot(levels=clevs,
+cd = corr_deseason.Hs.plot(levels=clevs,
                                 cmap=colormap,
                                 transform=ccrs.PlateCarree(),
                                 add_colorbar=False)
-plt.title('correlation CMIP5 Hs/AO index - 1990 : 2020 \n (deseason)')
+significant = corr_deseason.where(abs(corr_deseason) > siglev)
+
+significant['Hs'].plot.contourf(colors='none', 
+                                hatches = ['///'], 
+                                transform=ccrs.PlateCarree(),
+                                add_colorbar=False)
+
+if tempo == 'presente':
+    plt.title('Correlation ' + modelo + ' Hs/AO index - 1990 : 2020')
+elif tempo == 'futuro':
+    plt.title('Correlation ' + modelo + ' Hs/AO index - 2070 : 2100')
+
+
+# selecionando agora só o periodo de inverno dos dois datasets
+hs_deseason_ppcs_winter = hs_deseason_ppcs.sel(time=hs_deseason_ppcs[
+                                                'time.season']=='DJF')
+
+corr_deseason_winter = xr.corr(hs_deseason_ppcs_winter.swh, 
+                        hs_deseason_ppcs_winter.indice, 
+                        dim='time').to_dataset(name='Hs')
+
+
+fig, ax = faz_mapa_lambert()
+cd = corr_deseason_winter.Hs.plot(levels=clevs,
+                                cmap=colormap,
+                                transform=ccrs.PlateCarree(),
+                                add_colorbar=True)
+significant = corr_deseason_winter.where(abs(corr_deseason_winter) > siglev)
+
+significant['Hs'].plot.contourf(colors='none', 
+                                hatches = ['///'], 
+                                transform=ccrs.PlateCarree(),
+                                add_colorbar=False)
+
+if tempo == 'presente':
+    plt.title('Correlation ' + modelo + ' Hs/AO index - 1990 : 2020 \n Winter')
+elif tempo == 'futuro':
+    plt.title('Correlation ' + modelo + ' Hs/AO index - 2070 : 2100 \n Winter')
+
+
+
+# avaliando as mudancas de sinal
+change = np.where(np.sign(ppcs.indice).diff())[0]
+# duration = np.diff(change)
+# duration_sort = np.sort(duration)
+# imax_duration = np.where(duration == duration_sort[-1])[0][0]
+
+# max_duration = np.arange(change[imax_duration], 
+#                          change[imax_duration+1])
+periodo_continuo = ppcs.iloc[max_duration]
+
+for i in range(len(change) -1):
+    if (change[i+1] - change[i] >= 3):
+        plt.figure()
+        permanece_sinal = hs_deseason_ppcs.sel(time=slice(ppcs.index[change[i]], 
+                                          ppcs.index[change[i+1] - 1]))
+        (permanece_sinal.swh.mean(dim='time') - 
+                             hs_deseason_ppcs.swh.mean(dim='time')).plot()
+        if permanece_sinal.indice.values[0][0][0] > 0:
+            plt.title('Positive index for ' + str(len(permanece_sinal.time)) +
+                      ' months')
+            plt.savefig((r'/home/aline/Dropbox/IST_investigation/Teleconnections/'
+                     'indice_negativo/CMIP5/positive_' + str(i) + '.png'))
+        elif permanece_sinal.indice.values[0][0][0] < 0:
+            plt.title('Negative index for ' + str(len(permanece_sinal.time)) +
+                      ' months')
+            plt.savefig((r'/home/aline/Dropbox/IST_investigation/Teleconnections/'
+                     'indice_negativo/CMIP5/negative_' + str(i) + '.png'))
+        plt.close()
+
+
+
+
+permanece_negativo = hs_deseason_ppcs.sel(time=slice(ppcs.index[change[0]], 
+                                          ppcs.index[change[1]]))
+
+
+# correlacionando HGT
+historical = historical.sel(time=slice('1960-02-01', '2019-12-01'))
+f = f.sel(time=slice('1960-02-01', '2019-12-01'))
+corr_hgt = xr.corr(historical.hgt, f.hgt, dim='time')
+
+
+fig, ax = faz_mapa_lambert()
+corr_hgt.plot(levels=clevs,
+              cmap=colormap,
+              transform=ccrs.PlateCarree())
+
+
+# comparando as duas series de ppcs
+CMIP = pseudo_pcs.to_dataframe()
+ERA = pseudo_pcs.to_dataframe()
+
+coincidente = pd.merge(CMIP, ERA, on='time', how='inner', 
+                       suffixes=('_CMIP', '_ERA'))
+
+coincidente.corr()
+
+# plot significancia pearson
+
+
