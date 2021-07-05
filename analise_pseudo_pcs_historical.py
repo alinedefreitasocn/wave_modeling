@@ -17,6 +17,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 from scipy import stats
+import matplotlib
 
 #############################################################################
 #############################################################################
@@ -68,8 +69,8 @@ ppcs = pd.DataFrame(data=pseudo_pcs.indice.values,
 ppcs = ppcs['1980-01-01':'2100-12-31']
 mensal_completo = ppcs.groupby(ppcs.index.month)
 
-cmip_presente = ppcs['1990-01-01':'2020-12-01']
-era_presente = indices['1990-01-01':'2020-12-01']
+cmip_presente = ppcs['1980-01-01':'2009-12-01']
+era_presente = indices['1980-01-01':'2009-12-01']
 cmip_futuro = ppcs['2070-01-01':'2100-12-01']
 
 
@@ -295,6 +296,7 @@ for i in range(3):
 
 unique_season.sort()
 b = np.arange(-4, 4, 0.8)
+matplotlib.rcParams.update({'font.size': 14})
 
 fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
 for j in range(4):
@@ -337,10 +339,10 @@ for j in range(4):
     else:
         plt.setp(ax.get_xticklabels(), visible=False)
 
-    plt.legend(# bbox_to_anchor=(0.9, 1), 
-               labels=['CMIP5 Present', 'ERA5', 'CMIP5 Future'], 
+    plt.legend(#bbox_to_anchor=(0.9, 1), 
+               labels=['GCM Present', 'ERA5', 'GCM Future'], 
                loc='upper right', 
-               ncol=3)
+               ncol=3, prop={'size': 11})
 # plt.suptitle('Present Index   1979 - 2009')
 
 
